@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0877810e8308c04cb08faea5f782b8c, type: 3}
+  m_Name: 4x4Gem
+  m_EditorClassIdentifier: 
+  gemType: 4x4
+  gemPrefabs: {fileID: 6432118578439733709, guid: 2a588429d8134674a9b5269e1b4238cd, type: 3}
+  gemSprite: {fileID: 459293910, guid: 1621646e1f0d24044b16a311f6c0d3a9, type: 3}
+  gemWidth: 4
+  gemHeight: 4
