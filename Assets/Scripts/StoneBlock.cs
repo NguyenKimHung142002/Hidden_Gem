@@ -8,17 +8,28 @@ using UnityEngine.UI;
 [RequireComponent(typeof(RectTransform))]
 public class StoneBlock : MonoBehaviour
 {
-    private int x;
-    private int y;
+    private int row;
+    private int col;
     [SerializeField] private TextMeshProUGUI blockText;
     [SerializeField] private GameObject texture;
     [SerializeField] private bool isActive = true;
     private bool canPut = true;
-
-    public StoneBlock (int x, int y)
+    public bool CanPut {get {return canPut;}}
+    public int Row {get {return row;}}
+    public int Col {get{return col;}}
+    public void SetXY (int w, int h)
     {
-        this.x = x;
-        this.y = y;
+        this.row = w;
+        this.col = h;
+    }
+    //check if block have gem
+    public void SetCanPutStatus (bool status)
+    {
+        canPut = status;
+        if (canPut is false)
+        {
+            SetBlockText ("False");
+        }
     }
     private void Awake()
     {
@@ -38,8 +49,5 @@ public class StoneBlock : MonoBehaviour
         if (blockText is null) return;
         blockText.text = text;
     }
-    public void UpdateDebugText(string text)
-    {
 
-    }
 }

@@ -170,7 +170,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29234a10835e2e849b0ee2eb600159fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 3
+  width: 4
   maxCellsize: 200
   minCellsize: 100
   mineGridHolder: {fileID: 874744660}
@@ -178,7 +178,7 @@ MonoBehaviour:
   gemGridHolder: {fileID: 395617561}
   stoneBlockPrefab: {fileID: 5214594556376867202, guid: 20aa0ff822e2f974094824328e34b34c, type: 3}
   lPlaceGem:
-  - {fileID: 11400000, guid: 64a0c8150a0cf9344bc724165da42c6a, type: 2}
+  - {fileID: 11400000, guid: 28c0dc6e32f315a459b1efd79a0c0852, type: 2}
   OnClickedBlockAction:
     m_PersistentCalls:
       m_Calls:
@@ -655,8 +655,8 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1138388199}
   - {fileID: 395617561}
+  - {fileID: 1138388199}
   m_Father: {fileID: 1480842711}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}

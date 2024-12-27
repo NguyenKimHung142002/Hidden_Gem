@@ -11,27 +11,29 @@ public class PlaceGemTypeSO : ScriptableObject
     private GameObject gemPrefabs;
     [SerializeField]
     private Sprite gemSprite;
-    [SerializeField, Range(1, 4)]
+    [SerializeField, Range(1, 5)]
     private int gemWidth;
-    [SerializeField, Range(1, 4)]
+    [SerializeField, Range(1, 5)]
     private int gemHeight;
     private float gemSize = 100;
     private RectTransform gemPosition;
-    public float GemSize{get; set;}
 
-    public void InitGemInfo ( float gemSize)
+    public int GemWidth { get { return gemWidth; } }
+    public int GemHeight { get { return gemHeight; } }
+    public void InitGemInfo(RectTransform blockPos, float gemSize)
     {
         SetSprite();
         RectTransform gemRect = gemPrefabs.GetComponent<RectTransform>();
 
         if (gemRect is null) return;
-       
-        // gemRect.pivot = new Vector2(0, 1);
+
+        gemRect.pivot = new Vector2(0, 1);
 
         gemRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, gemWidth * gemSize);
         gemRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, gemHeight * gemSize);
 
-        /// gemRect.anchoredPosition = gemPos.anchoredPosition;
+        gemRect.anchoredPosition = blockPos.anchoredPosition;   
+
     }
 
     public void SetSprite()
@@ -46,5 +48,5 @@ public class PlaceGemTypeSO : ScriptableObject
     {
         return gemPrefabs;
     }
-    
+
 }
