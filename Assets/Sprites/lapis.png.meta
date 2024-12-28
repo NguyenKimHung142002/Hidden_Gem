@@ -113,12 +113,12 @@ TextureImporter:
       name: lapis_0
       rect:
         serializedVersion: 2
-        x: 37
-        y: 41
-        width: 246
-        height: 238
+        x: 25
+        y: 22
+        width: 273
+        height: 275
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 123, y: 120, z: 84, w: 78}
       outline: []
       physicsShape: []

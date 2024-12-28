@@ -8,6 +8,7 @@ using UnityEngine.UI;
 [RequireComponent(typeof(RectTransform))]
 public class StoneBlock : MonoBehaviour
 {
+    private int id;
     private int row;
     private int col;
     [SerializeField] private TextMeshProUGUI blockText;
@@ -17,6 +18,7 @@ public class StoneBlock : MonoBehaviour
     public bool CanPut {get {return canPut;}}
     public int Row {get {return row;}}
     public int Col {get{return col;}}
+    public int Id {get{return id;} set{id = value;}}
     public void SetXY (int w, int h)
     {
         this.row = w;
@@ -48,6 +50,15 @@ public class StoneBlock : MonoBehaviour
     {
         if (blockText is null) return;
         blockText.text = text;
+    }
+
+    public void ResetComponent()
+    {
+        row = 0;
+        col = 0;
+        id = 0;
+        isActive = true;
+        canPut = true;
     }
 
 }

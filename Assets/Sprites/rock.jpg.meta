@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: a2d84e2b4bae43b40be15b85fadd50ab
+guid: 9b15519d9f68afa4681c4d77b43166fa
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -110,22 +110,22 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Ruby_0
+      name: rock_0
       rect:
         serializedVersion: 2
-        x: 26
-        y: 6
-        width: 327
-        height: 325
+        x: 246
+        y: 121
+        width: 211
+        height: 250
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 116, y: 138, z: 113, w: 117}
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: eb2e570ffa0dea642bf34c5b065d6574
-      internalID: -1402741381
+      spriteID: 30299451896921c40a4eb147a67d162f
+      internalID: -773930723
       vertices: []
       indices: 
       edges: []
@@ -141,7 +141,7 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      Ruby_0: -1402741381
+      rock_0: -773930723
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

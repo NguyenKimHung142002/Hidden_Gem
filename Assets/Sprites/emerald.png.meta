@@ -113,10 +113,10 @@ TextureImporter:
       name: emerald_0
       rect:
         serializedVersion: 2
-        x: 539
-        y: 30
-        width: 330
-        height: 416
+        x: 519
+        y: 9
+        width: 373
+        height: 464
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 167, y: 165, z: 148, w: 222}

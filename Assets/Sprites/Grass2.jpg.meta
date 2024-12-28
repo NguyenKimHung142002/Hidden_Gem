@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: a2d84e2b4bae43b40be15b85fadd50ab
+guid: 24bf877c40a61f64e82d0eaa0023ffda
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -110,22 +110,22 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Ruby_0
+      name: Grass2_0
       rect:
         serializedVersion: 2
-        x: 26
-        y: 6
-        width: 327
-        height: 325
+        x: 482
+        y: 103
+        width: 423
+        height: 497
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
-      border: {x: 116, y: 138, z: 113, w: 117}
+      border: {x: 56, y: 19, z: 23, w: 127}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: eb2e570ffa0dea642bf34c5b065d6574
-      internalID: -1402741381
+      spriteID: f3ecb311afdbbe742887c061da8cc8ff
+      internalID: -148667802
       vertices: []
       indices: 
       edges: []
@@ -141,7 +141,7 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      Ruby_0: -1402741381
+      Grass2_0: -148667802
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
