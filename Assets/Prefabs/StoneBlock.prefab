@@ -268,6 +268,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6caf82d3eed4df14fb136e9e1bf5f91d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  blockText: {fileID: 0}
-  texture: {fileID: 0}
-  isActive: 0
+  lBlockTexture:
+  - {fileID: -1718136534, guid: 2a52b42d4308c0149b456293afc818ae, type: 3}
+  - {fileID: -773930723, guid: 9b15519d9f68afa4681c4d77b43166fa, type: 3}

@@ -16,10 +16,6 @@ public class PlaceGemTypeSO : ScriptableObject
     private int gemWidth;
     [SerializeField, Range(1, 5)]
     private int gemHeight;
-    private RectTransform gemPosition;
-    private GameObject gemGameObject;
-    private List<int> lLocationsOfGem ;
-    public List<int> LLocationsOfGem {get {return lLocationsOfGem;}}
 
     public int GemWidth { get { return gemWidth; } }
     public int GemHeight { get { return gemHeight; } }
@@ -37,7 +33,6 @@ public class PlaceGemTypeSO : ScriptableObject
 
         gemRect.anchoredPosition = blockPos.anchoredPosition;   
 
-        lLocationsOfGem = new List<int>();
     }
 
     public void SetSprite()
@@ -53,26 +48,9 @@ public class PlaceGemTypeSO : ScriptableObject
         return gemPrefabs;
     }
 
-    public void InitGemLocation(int x)
+    public GameObject CreateGemGameObject(RectTransform parent)
     {
-        lLocationsOfGem.Add(x);
-    }
-
-    public void RemoveGemLocation(int value)
-    {
-        Debug.LogError("Part of gem found at " + value);
-        lLocationsOfGem.Remove(value);
-        if(lLocationsOfGem.Count == 0)
-        {
-            Debug.Log("Gem Revealed");
-            gemGameObject.SetActive(false);
-        }
-            
-    }
-
-    public void CreateGemGameObject(RectTransform parent)
-    {
-        gemGameObject  = Instantiate(gemPrefabs, parent);
+        return Instantiate(gemPrefabs, parent);
 
     }
 }

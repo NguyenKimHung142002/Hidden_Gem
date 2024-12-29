@@ -12,15 +12,14 @@ using UnityEngine.UI;
 [RequireComponent(typeof(StoneBlockPool))]
 public class GridManager : MonoBehaviour
 {
-    [SerializeField, Range(2, 8)] private int gridRange;
-    [SerializeField] private int maxCellsize = 200;
-    [SerializeField] private int minCellsize = 100;
+    //[SerializeField, Range(2, 8)] private int gridRange;
 
+    [SerializeField] private List<LevelDetailSO> lOfLevel;
     [SerializeField] private RectTransform mineGridHolder;
     [SerializeField] private RectTransform stoneGridHolder;
     [SerializeField] private RectTransform gemGridHolder;
     [SerializeField] private GameObject stoneBlockPrefab;
-    [SerializeField] private List<PlaceGemTypeSO> lPlaceGem;
+    //[SerializeField] private List<PlaceGemTypeSO> lPlaceGem;
     [SerializeField] private bool wantAutoPlace = true;
     public UnityEvent<StoneBlock> OnClickedBlockAction;
     private int maxWidth = 8;
@@ -30,13 +29,15 @@ public class GridManager : MonoBehaviour
     private float cellSize;
     private StoneBlock[,] gridArray;
     private List<int> blockStoredIndex;
+    private List<GemValue> lAllGeminGrid;
     private int currentIndex = 0;
+    private int currentLevel = 0;
     private Coroutine coroutinePlaceGem;
 
     private void Awake()
     {
         stoneBlockPool = gameObject.GetComponent<StoneBlockPool>();
-
+        if (lOfLevel is null) Debug.LogError("List of level cannot null");
 
     }
     private void Start()
@@ -47,7 +48,7 @@ public class GridManager : MonoBehaviour
     private void SetUpBoard()
     {
         //Init array
-        gridArray = new StoneBlock[gridRange, gridRange];
+        gridArray = new StoneBlock[lOfLevel[currentLevel].GridRange, lOfLevel[currentLevel].GridRange];
         // set up grid
         SetUpGridSize();
         //load stone block on grid
@@ -103,14 +104,13 @@ public class GridManager : MonoBehaviour
             Debug.LogError("Missing GridLayoutGroup");
             return;
         }
-        //adjust board size
-        ResetCellsize();
-        //caculate size of cellsize
-        float mCellSize = Mathf.Lerp(maxCellsize, minCellsize, (float)(gridRange - minWidth) / (maxWidth - minWidth));
-        cellSize = Mathf.Clamp(mCellSize, minCellsize, maxCellsize);
 
-        mineGridHolder.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, gridRange * cellSize);
-        mineGridHolder.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, gridRange * cellSize);
+        //caculate size of cellsize
+        float mCellSize = Mathf.Lerp(lOfLevel[currentLevel].MaxCellsize, lOfLevel[currentLevel].MinCellsize, (float)(lOfLevel[currentLevel].GridRange - minWidth) / (maxWidth - minWidth));
+        cellSize = Mathf.Clamp(mCellSize, lOfLevel[currentLevel].MinCellsize, lOfLevel[currentLevel].MaxCellsize);
+
+        mineGridHolder.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, lOfLevel[currentLevel].GridRange * cellSize);
+        mineGridHolder.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, lOfLevel[currentLevel].GridRange * cellSize);
 
         stoneGridLayoutGroup.cellSize = new Vector2(cellSize, cellSize);
     }
@@ -123,9 +123,9 @@ public class GridManager : MonoBehaviour
         blockStoredIndex = new List<int>();
         currentIndex = 0;
         // instatiate stone block button
-        for (int row = 0; row < gridRange; row++)
+        for (int row = 0; row < lOfLevel[currentLevel].GridRange; row++)
         {
-            for (int col = 0; col < gridRange; col++)
+            for (int col = 0; col < lOfLevel[currentLevel].GridRange; col++)
             {
                 int localCols = col;
                 int localRows = row;
@@ -153,11 +153,11 @@ public class GridManager : MonoBehaviour
     private bool CheckCanPut(StoneBlock block, PlaceGemTypeSO placeGem)
     {
 
-        if (block.Row + placeGem.GemHeight > gridRange)
+        if (block.Row + placeGem.GemHeight > lOfLevel[currentLevel].GridRange)
         {
             return false;
         }
-        if (block.Col + placeGem.GemWidth > gridRange)
+        if (block.Col + placeGem.GemWidth > lOfLevel[currentLevel].GridRange)
         {
             return false;
         }
@@ -172,37 +172,6 @@ public class GridManager : MonoBehaviour
 
         return true;
     }
-    public void PlaceGem(StoneBlock block)
-    {
-        //check if the block have gem
-        if (CheckCanPut(block, lPlaceGem[0]) == false)
-        {
-            Debug.LogError($"Can't put gem here");
-            return;
-        }
-        if (lPlaceGem.Count == 0)
-        {
-            Debug.LogError("list is empty");
-            return;
-        };
-
-        RectTransform blockPos = block.gameObject.GetComponent<RectTransform>();
-
-        //set infor for gem then create it 
-        lPlaceGem[0].InitGemInfo(blockPos, cellSize);
-        GameObject gem = Instantiate(lPlaceGem[0].GetGemPrefabs(), gemGridHolder);
-
-
-        //load gem size to set status for block road
-        for (int row = block.Row; row < block.Row + lPlaceGem[0].GemHeight; row++)
-        {
-            for (int col = block.Col; col < block.Col + lPlaceGem[0].GemWidth; col++)
-            {
-                gridArray[row, col].SetCanPutStatus(false);
-            }
-        }
-        return;
-    }
 
     public bool PlaceGemAuto(StoneBlock block, PlaceGemTypeSO placeGem)
     {
@@ -216,36 +185,37 @@ public class GridManager : MonoBehaviour
 
         //set infor for gem then create it 
         placeGem.InitGemInfo(blockPos, cellSize);
-
+        GameObject newGem = placeGem.CreateGemGameObject(gemGridHolder);
+        GemValue gemValue = newGem.GetComponent<GemValue>();
         //load gem size to set status for block road
         for (int row = block.Row; row < block.Row + placeGem.GemHeight; row++)
         {
             for (int col = block.Col; col < block.Col + placeGem.GemWidth; col++)
             {
                 gridArray[row, col].SetCanPutStatus(false);
-                placeGem.InitGemLocation(gridArray[row, col].Id);
 
+
+                if (gemValue is not null)
+                {
+                    gemValue.InitGemLocation(gridArray[row, col].Id);
+                }
+                else
+                {
+                    Debug.LogError("Gem value is not available");
+                }
             }
         }
-        placeGem.CreateGemGameObject(gemGridHolder);
+
+        lAllGeminGrid.Add(gemValue);
+
         return true;
-    }
-
-
-    private void ResetCellsize()
-    {
-        if (maxCellsize < 0) maxCellsize = 0;
-
-        if (minCellsize < 0) minCellsize = 0;
-
-        if (minCellsize > maxCellsize) minCellsize = maxCellsize;
     }
 
 
     private StoneBlock GetBlockFromIndex(int index)
     {
-        int row = index / gridRange;
-        int col = index % gridRange;
+        int row = index / lOfLevel[currentLevel].GridRange;
+        int col = index % lOfLevel[currentLevel].GridRange;
         return gridArray[row, col];
     }
 
@@ -256,7 +226,7 @@ public class GridManager : MonoBehaviour
 
         List<int> availabeIndex = new List<int>();
 
-        int totalBlocks = gridRange * gridRange;
+        int totalBlocks = lOfLevel[currentLevel].GridRange * lOfLevel[currentLevel].GridRange;
         for (int i = 0; i < totalBlocks; i++)
         {
             availabeIndex.Add(i);
@@ -304,13 +274,13 @@ public class GridManager : MonoBehaviour
     private IEnumerator IEPlaceAllGemOnList()
     {
         yield return new WaitForEndOfFrame();
-        if (lPlaceGem is null) yield break;
+        if (lOfLevel[currentLevel].LPlaceGem is null) yield break;
         if (CheckIfGemListIsValid() is false)
         {
             yield break;
         }
         if (wantAutoPlace is false) yield break;
-        foreach (PlaceGemTypeSO gem in lPlaceGem)
+        foreach (PlaceGemTypeSO gem in lOfLevel[currentLevel].LPlaceGem)
         {
             yield return new WaitForEndOfFrame();
             bool checkPlace = PlaceRandomGem(gem);
@@ -333,24 +303,26 @@ public class GridManager : MonoBehaviour
         {
             StopCoroutine(coroutinePlaceGem);
         }
-
+        //reset list
+        lAllGeminGrid = new List<GemValue>();
+        //call place gem corroutine
         coroutinePlaceGem = StartCoroutine(IEPlaceAllGemOnList());
     }
 
     private bool CheckIfGemListIsValid()
     {
         int totalSize = 0;
-        foreach (PlaceGemTypeSO gem in lPlaceGem)
+        foreach (PlaceGemTypeSO gem in lOfLevel[currentLevel].LPlaceGem)
         {
-            if (gem.GemWidth > gridRange || gem.GemHeight > gridRange)
+            if (gem.GemWidth > lOfLevel[currentLevel].GridRange || gem.GemHeight > lOfLevel[currentLevel].GridRange)
             {
-                Debug.LogError($"Gem width = {gem.GemWidth}, Gem Heigh = {gem.GemHeight} Grid Range = {gridRange}");
+                Debug.LogError($"Gem width = {gem.GemWidth}, Gem Heigh = {gem.GemHeight} Grid Range = {lOfLevel[currentLevel].GridRange}");
                 return false;
             }
             totalSize = totalSize + gem.GemWidth + gem.GemHeight - 1;
         }
 
-        if (totalSize > gridRange * gridRange)
+        if (totalSize > lOfLevel[currentLevel].GridRange * lOfLevel[currentLevel].GridRange)
 
         {
             Debug.LogError("Total size: " + totalSize);
@@ -361,12 +333,17 @@ public class GridManager : MonoBehaviour
 
     public void CheckAllGemLocation(StoneBlock block)
     {
-        
-        foreach (PlaceGemTypeSO gem in lPlaceGem)
+        if(block.StartMining()) return;
+        foreach (GemValue gem in lAllGeminGrid)
         {
             if (gem.LLocationsOfGem.Contains(block.Id))
             {
-                gem.RemoveGemLocation(block.Id);
+                bool isListEmpty = gem.RemoveGemLocation(block.Id);
+                if (isListEmpty == true)
+                {
+                    lAllGeminGrid.Remove(gem);
+                }
+                break;
             }
         }
     }

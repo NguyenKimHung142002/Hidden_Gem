@@ -180,7 +180,9 @@ MonoBehaviour:
   stoneBlockPrefab: {fileID: 5214594556376867202, guid: 20aa0ff822e2f974094824328e34b34c, type: 3}
   lPlaceGem:
   - {fileID: 11400000, guid: 60a783b870b952a4a8b34a19e061bebd, type: 2}
-  wantAutoPlace: 1
+  - {fileID: 11400000, guid: 60a783b870b952a4a8b34a19e061bebd, type: 2}
+  - {fileID: 11400000, guid: 60a783b870b952a4a8b34a19e061bebd, type: 2}
+  wantAutoPlace: 0
   OnClickedBlockAction:
     m_PersistentCalls:
       m_Calls:
