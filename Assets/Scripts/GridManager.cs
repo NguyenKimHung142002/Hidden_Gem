@@ -10,6 +10,8 @@ using UnityEngine.Events;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(StoneBlockPool))]
+[RequireComponent(typeof(GemPool))]
+
 public class GridManager : MonoBehaviour
 {
     //[SerializeField, Range(2, 8)] private int gridRange;
@@ -19,24 +21,34 @@ public class GridManager : MonoBehaviour
     [SerializeField] private RectTransform stoneGridHolder;
     [SerializeField] private RectTransform gemGridHolder;
     [SerializeField] private GameObject stoneBlockPrefab;
+    [SerializeField] private int maxAttemptToPlaceGem = 10;
     //[SerializeField] private List<PlaceGemTypeSO> lPlaceGem;
     [SerializeField] private bool wantAutoPlace = true;
+    [SerializeField] private CanvasManager canvasManager;
     public UnityEvent<StoneBlock> OnClickedBlockAction;
     private int maxWidth = 8;
     private int minWidth = 2;
     private int attempToPlaceGem = 0;
-    private StoneBlockPool stoneBlockPool;
+    private int currentIndex = 0;
+    private int currentLevel = 0;
     private float cellSize;
+    private bool readyToPlace = false;
+    private StoneBlockPool stoneBlockPool;
+    
+    private GemPool gemPool;
+    
     private StoneBlock[,] gridArray;
     private List<int> blockStoredIndex;
     private List<GemValue> lAllGeminGrid;
-    private int currentIndex = 0;
-    private int currentLevel = 0;
-    private Coroutine coroutinePlaceGem;
+    private List<PlaceGemTypeSO> validGemList;
+
+        private Coroutine coroutinePlaceGem;
 
     private void Awake()
     {
         stoneBlockPool = gameObject.GetComponent<StoneBlockPool>();
+        gemPool = gameObject.GetComponent<GemPool>();
+
         if (lOfLevel is null) Debug.LogError("List of level cannot null");
 
     }
@@ -53,6 +65,10 @@ public class GridManager : MonoBehaviour
         SetUpGridSize();
         //load stone block on grid
         LoadStoneBlock();
+
+        //get gem list
+        validGemList = new List<PlaceGemTypeSO>(lOfLevel[currentLevel].LPlaceGem);
+        validGemList = GetValidGemList();
         // random place gem on grid
         PlaceALlGemOnList();
     }
@@ -69,10 +85,13 @@ public class GridManager : MonoBehaviour
 
         foreach (Transform child in gemGridHolder.transform)
         {
-            Destroy(child.gameObject);
+            if (child.gameObject.activeSelf == true)
+                gemPool.DeactiveGem(child.gameObject);
         }
 
-        SetUpBoard();
+        canvasManager.ResetStoredGem();
+
+        SetUpBoard(); 
     }
 
     public void ResetGem()
@@ -87,9 +106,10 @@ public class GridManager : MonoBehaviour
 
         foreach (Transform child in gemGridHolder.transform)
         {
-            Destroy(child.gameObject);
+            if (child.gameObject.activeSelf == true)
+                gemPool.DeactiveGem(child.gameObject);
         }
-
+        canvasManager.ResetStoredGem();
         // random place gem on grid
         PlaceALlGemOnList();
     }
@@ -143,6 +163,7 @@ public class GridManager : MonoBehaviour
                 currentIndex++;
 
                 //add listener
+                gridArray[localRows, localCols].GetComponent<Button>().onClick.RemoveAllListeners();
                 gridArray[localRows, localCols].GetComponent<Button>().onClick.AddListener(() => OnClickedBlockAction?.Invoke(gridArray[localRows, localCols]));
             }
         }
@@ -173,7 +194,7 @@ public class GridManager : MonoBehaviour
         return true;
     }
 
-    public bool PlaceGemAuto(StoneBlock block, PlaceGemTypeSO placeGem)
+    public bool PlaceAGemRandom(StoneBlock block, PlaceGemTypeSO placeGem)
     {
         //check if the block have gem
         if (CheckCanPut(block, placeGem) == false)
@@ -184,9 +205,11 @@ public class GridManager : MonoBehaviour
         RectTransform blockPos = block.gameObject.GetComponent<RectTransform>();
 
         //set infor for gem then create it 
-        placeGem.InitGemInfo(blockPos, cellSize);
-        GameObject newGem = placeGem.CreateGemGameObject(gemGridHolder);
+        // placeGem.InitGemInfo(blockPos, cellSize);
+        GameObject newGem = gemPool.GetStoneBlockFromPool(placeGem ,gemGridHolder, blockPos, cellSize);
         GemValue gemValue = newGem.GetComponent<GemValue>();
+        gemValue.SetGemvalueType(placeGem.GemType);
+
         //load gem size to set status for block road
         for (int row = block.Row; row < block.Row + placeGem.GemHeight; row++)
         {
@@ -197,7 +220,7 @@ public class GridManager : MonoBehaviour
 
                 if (gemValue is not null)
                 {
-                    gemValue.InitGemLocation(gridArray[row, col].Id);
+                    gemValue.InitGemLocation( gridArray[row, col].Id);
                 }
                 else
                 {
@@ -234,39 +257,22 @@ public class GridManager : MonoBehaviour
 
         bool isPlaced = false;
 
-        // if attemp to place gem is higher than 5, we won't do it auto anymore
-        if (attempToPlaceGem > 5)
+
+        while (availabeIndex.Count > 0)
         {
-            for (int i = 0; i <= availabeIndex.Count; i++)
-            {
-                StoneBlock selectBLock = GetBlockFromIndex(i);
+            //Select random stone block 
+            int randomIndex = UnityEngine.Random.Range(0, availabeIndex.Count);
 
-                isPlaced = PlaceGemAuto(selectBLock, placeGem);
-                if (isPlaced == true)
-                {
-                    Debug.Log("Gem Placed");
-                    break;
-                }
+            StoneBlock selectBLock = GetBlockFromIndex(randomIndex);
+
+            isPlaced = PlaceAGemRandom(selectBLock, placeGem);
+            if (isPlaced == true)
+            {
+                break;
             }
+
+            availabeIndex.RemoveAt(randomIndex);
         }
-        else
-
-            while (availabeIndex.Count > 0)
-            {
-                //Select random stone block 
-                int randomIndex = UnityEngine.Random.Range(0, availabeIndex.Count);
-
-                StoneBlock selectBLock = GetBlockFromIndex(randomIndex);
-
-                isPlaced = PlaceGemAuto(selectBLock, placeGem);
-                if (isPlaced == true)
-                {
-                    break;
-                }
-
-                availabeIndex.RemoveAt(randomIndex);
-            }
-
         return isPlaced;
     }
 
@@ -274,31 +280,40 @@ public class GridManager : MonoBehaviour
     private IEnumerator IEPlaceAllGemOnList()
     {
         yield return new WaitForEndOfFrame();
+        yield return new WaitForEndOfFrame();
         if (lOfLevel[currentLevel].LPlaceGem is null) yield break;
-        if (CheckIfGemListIsValid() is false)
-        {
-            yield break;
-        }
+
         if (wantAutoPlace is false) yield break;
-        foreach (PlaceGemTypeSO gem in lOfLevel[currentLevel].LPlaceGem)
+
+        foreach(PlaceGemTypeSO gem in validGemList)
         {
-            yield return new WaitForEndOfFrame();
+            
             bool checkPlace = PlaceRandomGem(gem);
             if (checkPlace == false)
             {
-                // if 1 gem in list can place, reset gem and place again
                 attempToPlaceGem++;
                 ResetGem();
                 yield break;
             }
         }
-        attempToPlaceGem = 0;
 
+        // auto place successful
+        attempToPlaceGem = 0;
+        if (canvasManager is not null)
+        {
+            canvasManager.LoadStoredGemPrefabs(validGemList);
+        }
+        else
+        {
+            Debug.Log("Canvas Manager cannot be null");
+        }
+        readyToPlace = true;
     }
 
     //place gem fuction
     public void PlaceALlGemOnList()
     {
+        readyToPlace = false;
         if (coroutinePlaceGem is not null)
         {
             StopCoroutine(coroutinePlaceGem);
@@ -308,40 +323,71 @@ public class GridManager : MonoBehaviour
         //call place gem corroutine
         coroutinePlaceGem = StartCoroutine(IEPlaceAllGemOnList());
     }
-
-    private bool CheckIfGemListIsValid()
+    //check xem số lượng gem có phù hợp ko, nếu quá thì sẽ tự động xoá bớt
+    private List<PlaceGemTypeSO> GetValidGemList()
     {
+        bool isInvalid = true;
         int totalSize = 0;
-        foreach (PlaceGemTypeSO gem in lOfLevel[currentLevel].LPlaceGem)
+        while (isInvalid)
         {
-            if (gem.GemWidth > lOfLevel[currentLevel].GridRange || gem.GemHeight > lOfLevel[currentLevel].GridRange)
+            //gem if gem size higher than grid range, if higher remove gem
+            foreach (PlaceGemTypeSO gem in validGemList)
             {
-                Debug.LogError($"Gem width = {gem.GemWidth}, Gem Heigh = {gem.GemHeight} Grid Range = {lOfLevel[currentLevel].GridRange}");
-                return false;
+                if (gem.GemWidth > lOfLevel[currentLevel].GridRange || gem.GemHeight > lOfLevel[currentLevel].GridRange)
+                {
+                    Debug.LogError($"The current gem List is = {validGemList.Count} invalid and should be re move one");
+                    validGemList.Remove(gem);
+                    Debug.LogError($"So new Number of gem in List = {validGemList.Count}");
+                    break;
+                }
+                totalSize = totalSize + gem.GemWidth + gem.GemHeight - 1;
             }
-            totalSize = totalSize + gem.GemWidth + gem.GemHeight - 1;
+
+            // check total size of gem compare to grid, if size > grid remove last
+            if (totalSize > lOfLevel[currentLevel].GridRange * lOfLevel[currentLevel].GridRange)
+            {
+                totalSize = 0;
+                Debug.LogError($"totalSize The current gem List is = {validGemList.Count} invalid and should be re move one");
+                validGemList.RemoveAt(validGemList.Count - 1);
+                Debug.LogError($"So new Number of gem in List = {validGemList.Count}");
+                continue;
+            }
+            isInvalid = false;
         }
 
-        if (totalSize > lOfLevel[currentLevel].GridRange * lOfLevel[currentLevel].GridRange)
-
-        {
-            Debug.LogError("Total size: " + totalSize);
-            return false;
-        }
-        return true;
+        
+        return validGemList;
     }
 
     public void CheckAllGemLocation(StoneBlock block)
     {
-        if(block.StartMining()) return;
+        if (readyToPlace is false) return;       
+        if (block.Health <= 0) return;
+        if (block.Health > 0 && canvasManager.NumberOfPickaxe >= 0)
+        {
+            block.StartMining();
+            canvasManager.SetPickAxeNumber(-1);
+        }
+  
+        if (block.CanPut == true) return;
+        
         foreach (GemValue gem in lAllGeminGrid)
         {
             if (gem.LLocationsOfGem.Contains(block.Id))
             {
-                bool isListEmpty = gem.RemoveGemLocation(block.Id);
+                bool isListEmpty = gem.CheckGemLocation(block.Id);
                 if (isListEmpty == true)
-                {
+                {         
+                    gemPool.DeactiveGem(gem.gameObject);
+                    canvasManager.RevealHiddenGem(gem);
+
                     lAllGeminGrid.Remove(gem);
+                    if (lAllGeminGrid.Count == 0)
+                    {
+                        currentLevel++;
+                        canvasManager.OpenChestReward();
+                        ResetBoard();
+                    }
                 }
                 break;
             }

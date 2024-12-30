@@ -22,6 +22,7 @@ public class StoneBlock : MonoBehaviour
     public int Row { get { return row; } }
     public int Col { get { return col; } }
     public int Id { get { return id; } set { id = value; } }
+    public int Health { get { return health; } }
     public void SetXY(int w, int h)
     {
         this.row = w;
@@ -31,10 +32,10 @@ public class StoneBlock : MonoBehaviour
     public void SetCanPutStatus(bool status)
     {
         canPut = status;
-        if (canPut is false)
-        {
-            SetBlockText("False");
-        }
+        // if (canPut is false)
+        // {
+        //     SetBlockText("False");
+        // }
     }
     private void Awake()
     {
@@ -82,7 +83,7 @@ public class StoneBlock : MonoBehaviour
         col = 0;
         id = 0;
         canPut = true;
-
+        SetCanPutStatus( true);
         health = lBlockTexture.Count;
         ChangeBlockTexture();
     }

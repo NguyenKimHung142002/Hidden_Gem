@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d219a0526491ce4197ceda98b285088, type: 3}
+  m_Name: ChestReward2
+  m_EditorClassIdentifier: 
+  chestType: rank2
+  closeChest: {fileID: 21300000, guid: 648d90e8933a4fa45b086d0d50e43115, type: 3}
+  openChest: {fileID: 21300000, guid: b8638196e67bb4d45bef9d88174c8e80, type: 3}
+  pickAxeReward: 20

@@ -4,18 +4,7 @@ using UnityEngine;
 
 public class StoneBlockPool : MonoBehaviour
 {
-    [SerializeField] private Transform BlockHolderParent;
-    private List<GameObject> lStoneBlockPool;
-
-        private void Awake()
-    {
-        lStoneBlockPool = new List<GameObject>();
-    }
-
-    public void SetActiveBlock()
-    {
-
-    }
+    private List<GameObject> lStoneBlockPool = new List<GameObject>();
 
     public GameObject GetStoneBlockFromPool(GameObject prefab, RectTransform parent)
     {
@@ -34,12 +23,5 @@ public class StoneBlockPool : MonoBehaviour
         lStoneBlockPool.Add(newBlock);
         return newBlock;
     }
-
-    public void DebugLog(GameObject a)
-    {
-        Debug.Log("Everything is ok" + a);
-    }
-
-
 
 }

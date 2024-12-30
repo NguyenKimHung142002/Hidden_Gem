@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 158d1725fa63b814c89ec99e3387c70e, type: 3}
+  m_Name: Level5
+  m_EditorClassIdentifier: 
+  id: 5
+  gridRange: 8
+  lPlaceGem:
+  - {fileID: 11400000, guid: 845e97f1394d89342bfe7d9647c2afb6, type: 2}
+  - {fileID: 11400000, guid: 64a0c8150a0cf9344bc724165da42c6a, type: 2}
+  - {fileID: 11400000, guid: df7b75212c75ddb4fa4e6d83643ca3fe, type: 2}
+  - {fileID: 11400000, guid: 28c0dc6e32f315a459b1efd79a0c0852, type: 2}
+  - {fileID: 11400000, guid: 28c0dc6e32f315a459b1efd79a0c0852, type: 2}
+  - {fileID: 11400000, guid: df7b75212c75ddb4fa4e6d83643ca3fe, type: 2}
+  - {fileID: 11400000, guid: 195f802fb5224074c9ef9376243691e5, type: 2}
+  - {fileID: 11400000, guid: 195f802fb5224074c9ef9376243691e5, type: 2}
+  pickAxeReward: 50
+  maxCellsize: 200
+  minCellsize: 100

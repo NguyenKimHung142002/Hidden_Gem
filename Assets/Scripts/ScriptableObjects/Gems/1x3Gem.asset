@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gemType: 1x3
   gemPrefabs: {fileID: 6432118578439733709, guid: 2a588429d8134674a9b5269e1b4238cd, type: 3}
-  gemSprite: {fileID: -1667605273, guid: 5593e53326b73694da518b88e7dbca6f, type: 3}
+  gemSprite: {fileID: 1590208908, guid: 186f4a2dfe9f6c84f95e38f20309dc9b, type: 3}
   gemWidth: 1
   gemHeight: 3
