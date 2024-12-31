@@ -18,6 +18,9 @@ public class PlaceGemTypeSO : ScriptableObject
     private int gemWidth;
     [SerializeField, Range(1, 5)]
     private int gemHeight;
+    [SerializeField]
+    private bool isDynamite = false;
+    public bool IsDynamite { get { return isDynamite; } }
 
     public string GemType { get { return gemType; } }
     public int GemWidth { get { return gemWidth; } }

@@ -66,16 +66,23 @@ public class CanvasManager : MonoBehaviour
             lStoredGemValue.Add(newStoredGemValue);
         }
     }
-    public void SetPickAxeNumber(int number = 0)
+    public bool SetPickAxeNumber(int number = 0)
     {
         numberOfPickaxe += number;
         if (numberOfPickaxe < 0 )
         {
             numberOfPickaxe = 0;
             addPickAxePopUp.SetActive(true);
+            return false;
         }
         numberOfPickaxeTextObject.text = numberOfPickaxe.ToString();
+        return true;
+    }
 
+    public void AddReward(int number = 0)
+    {
+        numberOfPickaxe += number;
+        numberOfPickaxeTextObject.text = numberOfPickaxe.ToString();
     }
     public void RevealHiddenGem(GemValue gem)
     {

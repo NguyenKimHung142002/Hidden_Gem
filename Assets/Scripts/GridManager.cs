@@ -25,7 +25,7 @@ public class GridManager : MonoBehaviour
     //[SerializeField] private List<PlaceGemTypeSO> lPlaceGem;
     [SerializeField] private bool wantAutoPlace = true;
     [SerializeField] private CanvasManager canvasManager;
-    public UnityEvent<StoneBlock> OnClickedBlockAction;
+    public UnityEvent<StoneBlock, bool> OnClickedBlockAction;
     private int maxWidth = 8;
     private int minWidth = 2;
     private int attempToPlaceGem = 0;
@@ -34,15 +34,15 @@ public class GridManager : MonoBehaviour
     private float cellSize;
     private bool readyToPlace = false;
     private StoneBlockPool stoneBlockPool;
-    
+
     private GemPool gemPool;
-    
+
     private StoneBlock[,] gridArray;
     private List<int> blockStoredIndex;
     private List<GemValue> lAllGeminGrid;
     private List<PlaceGemTypeSO> validGemList;
 
-        private Coroutine coroutinePlaceGem;
+    private Coroutine coroutinePlaceGem;
 
     private void Awake()
     {
@@ -91,7 +91,7 @@ public class GridManager : MonoBehaviour
 
         canvasManager.ResetStoredGem();
 
-        SetUpBoard(); 
+        SetUpBoard();
     }
 
     public void ResetGem()
@@ -164,7 +164,7 @@ public class GridManager : MonoBehaviour
 
                 //add listener
                 gridArray[localRows, localCols].GetComponent<Button>().onClick.RemoveAllListeners();
-                gridArray[localRows, localCols].GetComponent<Button>().onClick.AddListener(() => OnClickedBlockAction?.Invoke(gridArray[localRows, localCols]));
+                gridArray[localRows, localCols].GetComponent<Button>().onClick.AddListener(() => OnClickedBlockAction?.Invoke(gridArray[localRows, localCols], false));
             }
         }
 
@@ -194,7 +194,7 @@ public class GridManager : MonoBehaviour
         return true;
     }
 
-    public bool PlaceAGemRandom(StoneBlock block, PlaceGemTypeSO placeGem)
+    public bool PlaceAGem(StoneBlock block, PlaceGemTypeSO placeGem)
     {
         //check if the block have gem
         if (CheckCanPut(block, placeGem) == false)
@@ -206,9 +206,10 @@ public class GridManager : MonoBehaviour
 
         //set infor for gem then create it 
         // placeGem.InitGemInfo(blockPos, cellSize);
-        GameObject newGem = gemPool.GetStoneBlockFromPool(placeGem ,gemGridHolder, blockPos, cellSize);
+        GameObject newGem = gemPool.GetStoneBlockFromPool(placeGem, gemGridHolder, blockPos, cellSize);
         GemValue gemValue = newGem.GetComponent<GemValue>();
-        gemValue.SetGemvalueType(placeGem.GemType);
+
+        gemValue.SetGemvalueType(placeGem.GemType, placeGem.IsDynamite);
 
         //load gem size to set status for block road
         for (int row = block.Row; row < block.Row + placeGem.GemHeight; row++)
@@ -217,10 +218,9 @@ public class GridManager : MonoBehaviour
             {
                 gridArray[row, col].SetCanPutStatus(false);
 
-
                 if (gemValue is not null)
                 {
-                    gemValue.InitGemLocation( gridArray[row, col].Id);
+                    gemValue.InitGemLocation(gridArray[row, col].Id);
                 }
                 else
                 {
@@ -243,7 +243,7 @@ public class GridManager : MonoBehaviour
     }
 
     //random place gem on board
-    private bool PlaceRandomGem(PlaceGemTypeSO placeGem)
+    private bool PlaceRandomGemList(PlaceGemTypeSO placeGem)
     {
         if (placeGem is null) return false;
 
@@ -265,7 +265,7 @@ public class GridManager : MonoBehaviour
 
             StoneBlock selectBLock = GetBlockFromIndex(randomIndex);
 
-            isPlaced = PlaceAGemRandom(selectBLock, placeGem);
+            isPlaced = PlaceAGem(selectBLock, placeGem);
             if (isPlaced == true)
             {
                 break;
@@ -285,10 +285,10 @@ public class GridManager : MonoBehaviour
 
         if (wantAutoPlace is false) yield break;
 
-        foreach(PlaceGemTypeSO gem in validGemList)
+        foreach (PlaceGemTypeSO gem in validGemList)
         {
-            
-            bool checkPlace = PlaceRandomGem(gem);
+
+            bool checkPlace = PlaceRandomGemList(gem);
             if (checkPlace == false)
             {
                 attempToPlaceGem++;
@@ -301,6 +301,15 @@ public class GridManager : MonoBehaviour
         attempToPlaceGem = 0;
         if (canvasManager is not null)
         {
+            //dont get dymanite as gem remove it from 2 list
+            for (int i = validGemList.Count - 1; i >= 0; i--)
+            {
+                if (validGemList[i].IsDynamite)
+                {
+                    validGemList.Remove(validGemList[i]);
+                }
+            }
+
             canvasManager.LoadStoredGemPrefabs(validGemList);
         }
         else
@@ -355,41 +364,106 @@ public class GridManager : MonoBehaviour
             isInvalid = false;
         }
 
-        
+
         return validGemList;
     }
 
-    public void CheckAllGemLocation(StoneBlock block)
+    public void CheckIfBlockHasGem(StoneBlock block, bool IsDynamite = false)
     {
-        if (readyToPlace is false) return;       
+        if (readyToPlace is false) return;
         if (block.Health <= 0) return;
         if (block.Health > 0 && canvasManager.NumberOfPickaxe >= 0)
         {
-            block.StartMining();
-            canvasManager.SetPickAxeNumber(-1);
+
+            if (IsDynamite == false)
+            {
+                //reduce placaxe number
+                bool mine = canvasManager.SetPickAxeNumber(-1);
+                if (mine is false)
+                {
+                    return;
+                }
+            }
+            bool mineAll = block.StartMining();
+            Debug.Log(mineAll);
+            if (mineAll == false)
+            {
+                return;
+            }
         }
-  
+
         if (block.CanPut == true) return;
-        
+
         foreach (GemValue gem in lAllGeminGrid)
         {
             if (gem.LLocationsOfGem.Contains(block.Id))
             {
+                if (gem.IsDynamite == true)
+                {
+                    DynamiteExpore(block);
+                }
                 bool isListEmpty = gem.CheckGemLocation(block.Id);
                 if (isListEmpty == true)
-                {         
-                    gemPool.DeactiveGem(gem.gameObject);
-                    canvasManager.RevealHiddenGem(gem);
-
-                    lAllGeminGrid.Remove(gem);
-                    if (lAllGeminGrid.Count == 0)
-                    {
-                        currentLevel++;
-                        canvasManager.OpenChestReward();
-                        ResetBoard();
-                    }
+                {
+                    StartCoroutine(IfGemIsFound(gem));
                 }
                 break;
+            }
+        }
+    }
+
+    private IEnumerator IfGemIsFound(GemValue gem)
+    {
+        yield return new WaitForSeconds(1);
+        gemPool.DeactiveGem(gem.gameObject);
+        canvasManager.RevealHiddenGem(gem);
+
+        lAllGeminGrid.Remove(gem);
+        bool listEmpty = false;
+        
+        
+        if (lAllGeminGrid.Count == 0)
+        {
+            listEmpty = true;
+        }
+        else
+        {
+            foreach (GemValue gemInGrid in lAllGeminGrid)
+            {
+                listEmpty = true; 
+                if (gemInGrid.IsDynamite == false)
+                {
+                    listEmpty = false;
+                    break;
+
+                }
+            }
+        }
+
+        if (listEmpty == true)
+        {
+            currentLevel++;
+            canvasManager.OpenChestReward();
+            ResetBoard();
+        }
+    }
+
+    private void DynamiteExpore(StoneBlock block)
+    {
+        block.PlayExplored();
+        for (int dx = -1; dx <= 1; dx++)
+        {
+            for (int dy = -1; dy <= 1; dy++)
+            {
+                if (dx == 0 && dy == 0) continue;
+
+                int blockX = block.Row + dx;
+                int blockY = block.Col + dy;
+
+                if (blockX >= 0 && blockX < lOfLevel[currentLevel].GridRange && blockY >= 0 && blockY < lOfLevel[currentLevel].GridRange)
+                {
+                    CheckIfBlockHasGem(gridArray[blockX, blockY], true);
+                }
             }
         }
     }

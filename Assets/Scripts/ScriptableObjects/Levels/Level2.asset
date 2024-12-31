@@ -20,6 +20,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: df7b75212c75ddb4fa4e6d83643ca3fe, type: 2}
   - {fileID: 11400000, guid: df7b75212c75ddb4fa4e6d83643ca3fe, type: 2}
   - {fileID: 11400000, guid: b4e282d28b19db04da52a458c6c48d18, type: 2}
+  - {fileID: 11400000, guid: 449a9365f64cd5347a762c796ae5860d, type: 2}
+  - {fileID: 11400000, guid: 449a9365f64cd5347a762c796ae5860d, type: 2}
   pickAxeReward: 50
   maxCellsize: 200
   minCellsize: 100

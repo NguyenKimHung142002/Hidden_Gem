@@ -13,9 +13,11 @@ MonoBehaviour:
   m_Name: Level1Test
   m_EditorClassIdentifier: 
   id: 100
-  gridRange: 6
+  gridRange: 3
   lPlaceGem:
-  - {fileID: 11400000, guid: 517eb9cfaa9a86c46b9c47365b7e968e, type: 2}
+  - {fileID: 11400000, guid: 28c0dc6e32f315a459b1efd79a0c0852, type: 2}
+  - {fileID: 11400000, guid: 449a9365f64cd5347a762c796ae5860d, type: 2}
+  - {fileID: 11400000, guid: 449a9365f64cd5347a762c796ae5860d, type: 2}
   pickAxeReward: 50
   maxCellsize: 200
   minCellsize: 100

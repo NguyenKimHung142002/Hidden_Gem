@@ -14,7 +14,10 @@ public class StoneBlock : MonoBehaviour
     private int col;
     private TextMeshProUGUI blockText;
     [SerializeField] private List<Sprite> lBlockTexture;
-
+    [SerializeField] private ParticleSystem breakParticle;
+    [SerializeField] private ParticleSystem exporedParticle;
+    [SerializeField] private AudioSource breakAudio;
+    [SerializeField] private AudioSource exploreAudio;
     private int health;
     private bool canPut = true;
     private Image blockImage;
@@ -50,7 +53,11 @@ public class StoneBlock : MonoBehaviour
         RectTransform rectT = gameObject.GetComponent<RectTransform>();
         rectT.pivot = new Vector2(0, 1);
     }
-
+    public void PlayExplored()
+    {
+        exporedParticle.Play();
+        exploreAudio.Play();
+    }
     public void SetBlockText(string text)
     {
         if (blockText is null) return;
@@ -64,18 +71,23 @@ public class StoneBlock : MonoBehaviour
     }
     public bool StartMining()
     {
+        if (health > 0 && breakParticle is not null){
+            breakParticle.Play();
+            breakAudio.Play();
+        }
         health--;
-        if (health == 0)
+        if (health <= 0)
         {
+            health = 0;
             if (blockImage.gameObject.activeSelf == true)
                 blockImage.enabled = false;
-            return false;
+            return true;
         }
         else if (health > 0)
         {      
             ChangeBlockTexture();
         }
-        return true;
+        return false;
     }
     public void ResetComponent()
     {
