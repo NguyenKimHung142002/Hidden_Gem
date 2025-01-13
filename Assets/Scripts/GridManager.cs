@@ -7,6 +7,7 @@ using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(StoneBlockPool))]
@@ -443,6 +444,12 @@ public class GridManager : MonoBehaviour
         if (listEmpty == true)
         {
             currentLevel++;
+            if (currentLevel >= lOfLevel.Count)
+            {
+                ReloadCurrentScene();
+                yield break;
+            }
+
             canvasManager.OpenChestReward();
             ResetBoard();
         }
@@ -466,6 +473,15 @@ public class GridManager : MonoBehaviour
                 }
             }
         }
+    }
+
+    public void ReloadCurrentScene()
+    {
+        // Get the current scene
+        Scene currentScene = SceneManager.GetActiveScene();
+
+        // Reload the current scene
+        SceneManager.LoadScene(currentScene.name);
     }
 }
 
